@@ -1,0 +1,85 @@
+ECE 7720: GPU Convolution & Normalization Programming
+Homework 3
+
+Submission: 
+------------------
+
+Package your files in a standard archive format (e.g. zip, tar.gz, tar.bz2). Please also include your name and A# in the title of your archive.
+
+
+
+
+
+Resource usage:
+------------------
+
+This is a classic problem. Please do not look up the solutions directly, except as described in the "reduction" resource below. (Feel free to look up general documentation.)
+
+
+
+Part 1 (10 Points):
+--------------------------------------------------------
+This homework consists of two implementations: 1. Convolution; and 2. Normalization. 
+For both, you understand the C++ implementation, profile them with assigning various number 
+of threads and blocks. After you profile them, observe their speed-up. 
+
+Explain the following details in final report:
+1. Report time taken by the CPU implementation for convolution and normalization
+2. Which portion of C++ code can be parallelizable?
+
+Part 2A -- Large-Kernel Convolution (coding) (455 Points):
+--------------------------------------------------------
+You implement the CUDA programming model for convolution. In the source code, I mentioned 
+TODO with specific comments. These comments provide a hint to you for CUDA implementation. 
+After you implement the convolution, I strongly recommend that you verify the CUDA output 
+and original output are identical. Provide your answers to following questions:
+
+1. Fill the following table (Table is listed in the Wiki Page).
+2. Explain possible methods that can reduce the run-time and why did you choose this specific method?
+3. Explain the insight behind how # of threads per block and maximum # of blocks impacts the speed-up?
+4. What happens when you scale them from 256 to 1024?
+5. Any specific thoughts on what is happening if you assign less number of threads and blocks?
+
+To do:
+------------------
+Complete the GPU-accelerated FFT convolution by filling in the parts marked "TODO" in fft_convolve.cc and fft_convolve_cuda.cu.
+
+Part 2B -- Normalization (coding/explanation) (45 Points):
+--------------------------------------------------------
+You implement the CUDA programming model for normalization. In the source code, I mentioned 
+TODO-2 with specific comments. These comments provide a hint to you for CUDA implementation. 
+After you implement the normalization, again I strongly recommend that you verify the CUDA 
+output and original output are identical. Provide your answers to following questions:
+
+1. Fill the following table (Table is listed in Wiki Page).
+2. Explain possible methods that can reduce the run-time and why did you choose this specific method?
+3. Explain the insight behind how # of threads per block and maximum # of blocks impacts the speed-up?
+4. What happens when you scale them from 256 to 1024?
+5. Any specific thoughts on what is happening if you assign less number of threads and blocks?
+
+To do:
+------------------
+
+Try to complete Part 2A first. (Some parts, such as memory transfers, are necessary for both convolution and normalization to function.)
+
+Then, complete the GPU-accelerated normalization by filling in the parts marked "TODO 2" in fft_convolve.cc and fft_convolve_cuda.cu.
+
+For the reduction problem (the maximum-finding kernel), please thoroughly explain your method of reduction and any optimizations you make (especially as they relate to GPU hardware). Leave this explanation in the comments, around where the reduction kernel is. 
+
+There are many ways to do reduction (some of which we discussed in class), some of which perform better than others. Score will be determined based on the reduction approach, as well as the explanation; particularly good reductions may receive extra credit.
+
+Reduction resource:
+------------------
+
+A recommended resource is the presentation "Optimizing Parallel Reduction in CUDA", by Mark Harris.
+
+
+Executing the Code:
+------------------
+
+1. make command -- Executes the .cpp and .cu codes and generates binaries: noaudio-fft and audio-fft
+   In this homework, we use no audio (noaudio-fft)
+2. noaudio-fft <threads per block> <max number of blocks>
+   Eg: noaudio-fft 512 512
+
+

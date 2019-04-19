@@ -4,3 +4,8 @@
 *.ptx
 *.cubin
 *.fatbin
+Makefile
+*.o
+audio-fft
+noaudio-fft
+

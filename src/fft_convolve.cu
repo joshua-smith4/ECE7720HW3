@@ -37,21 +37,27 @@ __global__
 void
 cudaProdScaleKernel(const cufftComplex *raw_data, const cufftComplex *impulse_v, 
     cufftComplex *out_data,
-    int padded_length) {
-
-
-    /* TODO: Implement the point-wise multiplication and scaling for the
-    input and impulse response. 
-
-    Recall that these are complex numbers, so you'll need to use the
-    appropriate rule for multiplying them. 
-
-    Also remember to scale by the padded length of the signal
-    (see the notes for Question 1).
-
-    Remember to make your implementation resilient to varying numbers of threads.
-
-    */
+    const unsigned int padded_length,
+    const unsigned int impulse_len) 
+{
+    
+    int numThreads = gridDim.x*blockDim.x;
+    int idx = blockDim.x*blockIdx.x + threadIdx.x;
+    while(idx < padded_length)
+    {
+	    float sumReal = 0.0;
+	    float sumImg = 0.0;
+	    int impulseIdx = 0;
+    	for(int j = idx; j >= 0 && impulseIdx < impulse_len; --j)
+	    {
+            sumReal += (raw_data[j].x*impulse_v[impulseIdx].x-raw_data[j].y*impulse_v[impulseIdx].y);
+            sumImg += (raw_data[j].x*impulse_v[impulseIdx].y+raw_data[j].y*impulse_v[impulseIdx].x);
+	        ++impulseIdx; 
+        }
+        out_data[idx].x = sumReal; 
+        out_data[idx].y = sumImg;
+	    idx += numThreads;
+    }
 }
 
 __global__
@@ -81,8 +87,17 @@ cudaMaximumKernel(cufftComplex *out_data, float *max_abs_val,
         compare-float-in-cuda)
 
     */
-
-
+    int numThreads = gridDim.x*blockDim.x;
+    int sizeOfChunk = (padded_length+numThreads-1)/numThreads;
+    int idx = (blockDim.x*blockIdx.x + threadIdx.x)*sizeOfChunk;
+    int iter = 0;
+    float local_max = out_data[0].x;
+    while(idx+iter < padded_length && iter < sizeOfChunk)
+    {
+        if(out_data[idx+iter].x > local_max) local_max = out_data[idx+iter].x;
+        ++iter;
+    }  
+    atomicMax(max_abs_val,local_max);
 }
 
 __global__
@@ -96,6 +111,16 @@ cudaDivideKernel(cufftComplex *out_data, float *max_abs_val,
     This kernel should be quite short.
     */
 
+    int numThreads = gridDim.x*blockDim.x;
+    int sizeOfChunk = (padded_length+numThreads-1)/numThreads;
+    int idx = (blockDim.x*blockIdx.x + threadIdx.x)*sizeOfChunk;
+    int iter = 0;
+    float max_val_modified = 0.99999/(*max_abs_val);
+    while(idx+iter < padded_length && iter < sizeOfChunk)
+    {
+        out_data[idx+iter].x *= max_val_modified;
+        ++iter;
+    }  
 }
 
 
@@ -104,9 +129,12 @@ void cudaCallProdScaleKernel(const unsigned int blocks,
         const cufftComplex *raw_data,
         const cufftComplex *impulse_v,
         cufftComplex *out_data,
-        const unsigned int padded_length) {
+        const unsigned int padded_length,
+        const unsigned int impulse_len) {
         
+
     /* TODO: Call the element-wise product and scaling kernel. */
+    cudaProdScaleKernel<<<blocks,threadsPerBlock>>>(raw_data, impulse_v, out_data, padded_length, impulse_len);
 }
 
 void cudaCallMaximumKernel(const unsigned int blocks,
@@ -117,7 +145,7 @@ void cudaCallMaximumKernel(const unsigned int blocks,
         
 
     /* TODO 2: Call the max-finding kernel. */
-
+    cudaMaximumKernel<<<blocks,threadsPerBlock>>>(out_data,max_abs_val,padded_length);    
 }
 
 
@@ -128,4 +156,5 @@ void cudaCallDivideKernel(const unsigned int blocks,
         const unsigned int padded_length) {
         
     /* TODO 2: Call the division kernel. */
+    cudaDivideKernel<<<blocks,threadsPerBlock>>>(out_data,max_abs_val,padded_length);
 }

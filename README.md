@@ -19,4 +19,6 @@
 4. Explained in the last question. There is very little increase from 256x256 to 1024x1024. I believe this is due to an increase in speedup during division but a slight decrease from the maximum kernel because 1024x1024 (1,048,576) threads must be serialized through the atomicMax used at the end.
 5. I believe that max and divide are somewhat inversely proportional in speedup as thread count increases as explained in the last question. The chosen max algorithm has a sweet spot close to where the chunk size matches the number of threads so that serialization at the end doesn't take too much time. Divide on the other hand only performs better as thread count increases.
 
-![Alt text](/results/conv_time.png?raw=true)
+![Time analysis of convolution: CPU vs GPU](/results/conv_time.png?raw=true)
+![Time analysis of normalization: CPU vs GPU](/results/norm_time.png?raw=true)
+![Speedup analysis](/results/speedup.png?raw=true)

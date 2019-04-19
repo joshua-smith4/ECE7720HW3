@@ -331,7 +331,7 @@ int large_gauss_test(int argc, char **argv){
         // (For scoping)
 
         {
-            #if 0
+            #if 1
 
             for (int i = 0; i < impulse_length; i++){
                 for (int j = 0; j <= i; j++){
@@ -443,7 +443,7 @@ int large_gauss_test(int argc, char **argv){
 
         cout << "Comparing..." << endl;
 
-#if 0
+#if 1
         // Compare results
         // NOTE: Not comparing through the padded length
         bool success = true;
